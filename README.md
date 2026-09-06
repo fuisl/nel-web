@@ -13,7 +13,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Customize before launch
 
-The primary site copy, portfolio entries, email, and Instagram link are in `components/portfolio.tsx`. Metadata and social sharing text are in `app/layout.tsx`. Optimized portfolio images live in `public/images`; high-resolution originals remain in the ignored `assets` archive.
+The primary site copy, portfolio entries, contact details, and social links are in `components/portfolio.tsx`. Metadata and social sharing text are in `app/layout.tsx`. Optimized portfolio images live in `public/images`; high-resolution originals remain in the ignored `assets` archive.
 
 ## Deploy to Vercel
 

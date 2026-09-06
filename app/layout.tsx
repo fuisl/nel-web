@@ -9,13 +9,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "NEL — Photographer in Ho Chi Minh City",
   description:
-    "Intimate wedding, portrait, editorial, and event photography by NEL in Ho Chi Minh City and worldwide.",
+    "Wedding, portrait, editorial, and event photography by NEL in Ho Chi Minh City, Vietnam.",
   metadataBase: new URL("https://nel-web-tan.vercel.app"),
   openGraph: {
     title: "NEL — Photography",
     description: "Honest images for people, stories, and brands.",
     type: "website",
-    images: ["/images/hero-tan-thu.jpg"],
+    images: ["/images/hero-wedding-2512.jpg"],
   },
 };
 

@@ -81,6 +81,17 @@ const works: Work[] = [
 
 const filters = ["All", "Wedding", "Portrait", "Editorial", "Event"] as const;
 
+const heroImages = [
+  {
+    src: "/images/hero-wedding-2512.jpg",
+    alt: "Wedding portraits at Independence Palace in Ho Chi Minh City",
+  },
+  {
+    src: "/images/hero-tan-thu.jpg",
+    alt: "A couple moving together through Ho Chi Minh City",
+  },
+] as const;
+
 function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
@@ -92,11 +103,20 @@ function Arrow({ diagonal = false }: { diagonal?: boolean }) {
 export function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
+  const [heroSlide, setHeroSlide] = useState(0);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const interval = window.setInterval(() => {
+      setHeroSlide((current) => (current + 1) % heroImages.length);
+    }, 5500);
+    return () => window.clearInterval(interval);
+  }, []);
 
   const visibleWorks = filter === "All" ? works : works.filter((work) => work.category === filter);
   const closeMenu = () => setMenuOpen(false);
@@ -104,13 +124,29 @@ export function Portfolio() {
   return (
     <main>
       <header className="site-header">
-        <a className="wordmark" href="#top" aria-label="NEL home" onClick={closeMenu}>NEL<span>®</span></a>
-        <p className="header-note">Photographer · HCMC</p>
+        <a className="brand-block" href="#top" aria-label="NEL home" onClick={closeMenu}>
+          <span className="nav-label">Independent</span>
+          <strong className="wordmark">NEL<span>®</span></strong>
+        </a>
+        <div className="location-block">
+          <span className="nav-label">Based in</span>
+          <strong>Ho Chi Minh City</strong>
+        </div>
         <nav className={menuOpen ? "site-nav is-open" : "site-nav"} aria-label="Main navigation">
-          <a href="#work" onClick={closeMenu}>Work</a>
-          <a href="#about" onClick={closeMenu}>About</a>
-          <a href="#contact" onClick={closeMenu}>Contact</a>
+          <span className="nav-label">Index</span>
+          <div className="nav-links">
+            <a href="#work" onClick={closeMenu}>Portfolio</a>
+            <a href="#about" onClick={closeMenu}>About</a>
+            <a href="#contact" onClick={closeMenu}>Contact</a>
+          </div>
         </nav>
+        <div className="header-contact">
+          <span className="nav-label">Contact</span>
+          <div>
+            <a href="https://www.instagram.com/nel_khoe" target="_blank" rel="noreferrer">Instagram</a>
+            <a href="mailto:ngolamanhkhoa169@gmail.com">Email</a>
+          </div>
+        </div>
         <button
           className="menu-button"
           type="button"
@@ -124,14 +160,17 @@ export function Portfolio() {
 
       <section className="hero" id="top" aria-labelledby="hero-title">
         <div className="hero-image-wrap">
-          <Image
-            className="hero-image"
-            src="/images/hero-tan-thu.jpg"
-            alt="Two people walking hand in hand across a city bridge"
-            fill
-            priority
-            sizes="100vw"
-          />
+          {heroImages.map((image, index) => (
+            <Image
+              className={heroSlide === index ? "hero-image is-active" : "hero-image"}
+              src={image.src}
+              alt={image.alt}
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              key={image.src}
+            />
+          ))}
           <div className="hero-shade" />
         </div>
         <div className="hero-copy">
@@ -142,11 +181,22 @@ export function Portfolio() {
             <a className="round-link" href="#work" aria-label="Explore selected work"><Arrow /></a>
           </div>
         </div>
-        <span className="hero-index">© 2026 — 01</span>
+        <div className="hero-pagination" aria-label="Choose hero image">
+          {heroImages.map((image, index) => (
+            <button
+              className={heroSlide === index ? "is-active" : ""}
+              type="button"
+              onClick={() => setHeroSlide(index)}
+              aria-label={`Show image ${index + 1}: ${image.alt}`}
+              aria-pressed={heroSlide === index}
+              key={image.src}
+            >{String(index + 1).padStart(2, "0")}</button>
+          ))}
+        </div>
       </section>
 
       <section className="intro" aria-label="Introduction">
-        <p className="eyebrow">Based in Ho Chi Minh City · Available worldwide</p>
+        <p className="eyebrow">Vietnam · Ho Chi Minh City · GMT+7</p>
         <p className="intro-statement">
           I photograph the energy between people—the fleeting, imperfect moments that make a story feel <em>alive.</em>
         </p>
@@ -217,18 +267,23 @@ export function Portfolio() {
       <section className="contact" id="contact" aria-labelledby="contact-title">
         <div className="contact-topline">
           <p className="eyebrow">Bookings open · 2026</p>
-          <p>Ho Chi Minh City · Worldwide</p>
+          <p>Vietnam · Ho Chi Minh City · GMT+7</p>
         </div>
         <h2 id="contact-title">Have a story in mind?</h2>
-        <a className="contact-link" href="mailto:hello@nel.photo">
+        <a className="contact-link" href="mailto:ngolamanhkhoa169@gmail.com">
           Let&apos;s make something <em>lasting.</em>
           <span><Arrow diagonal /></span>
         </a>
+        <div className="contact-details">
+          <div><span>Email</span><a href="mailto:ngolamanhkhoa169@gmail.com">ngolamanhkhoa169@gmail.com</a></div>
+          <div><span>Phone</span><a href="tel:+84908634027">(+84) 908 634 027</a></div>
+          <div><span>Instagram</span><a href="https://www.instagram.com/nel_khoe" target="_blank" rel="noreferrer">@nel_khoe</a></div>
+        </div>
         <footer>
           <a className="wordmark footer-mark" href="#top">NEL<span>®</span></a>
           <div className="footer-links">
-            <a href="mailto:hello@nel.photo">Email</a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+            <a href="mailto:ngolamanhkhoa169@gmail.com">Email</a>
+            <a href="https://www.instagram.com/nel_khoe" target="_blank" rel="noreferrer">Instagram</a>
           </div>
           <p>© 2026 NEL Photography</p>
         </footer>
