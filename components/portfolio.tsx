@@ -25,16 +25,16 @@ const works: Work[] = [
     title: "Saigon, With You",
     category: "Portrait",
     location: "Ho Chi Minh City",
-    image: "/images/couple-tan-thu.jpg",
-    alt: "Couple holding hands on a bridge in the city",
+    image: "/images/portfolio-02-img-1264.jpg",
+    alt: "A couple laughing and dancing on a Ho Chi Minh City street",
     ratio: "tall",
   },
   {
-    title: "Việt Phục",
-    category: "Editorial",
-    location: "Saigon",
-    image: "/images/editorial-viet-phuc.jpg",
-    alt: "Woman in traditional Vietnamese dress holding a fan",
+    title: "Bách & Nhi",
+    category: "Wedding",
+    location: "Ho Chi Minh City",
+    image: "/images/portfolio-03-img-0804.jpg",
+    alt: "A wedding party gathered at the entrance of a church",
     ratio: "portrait",
   },
   {
@@ -62,11 +62,11 @@ const works: Work[] = [
     ratio: "landscape",
   },
   {
-    title: "The Ceremony",
+    title: "Sinh & Xuyến",
     category: "Wedding",
     location: "Ho Chi Minh City",
-    image: "/images/wedding-ceremony.jpg",
-    alt: "Wedding party entering a church",
+    image: "/images/portfolio-07-img-1059.jpg",
+    alt: "A bride looking through the window of a wedding car",
     ratio: "portrait",
   },
   {
@@ -77,20 +77,49 @@ const works: Work[] = [
     alt: "Students moving through a school courtyard",
     ratio: "portrait",
   },
+  {
+    title: "Constructed Form",
+    category: "Editorial",
+    location: "Nhật Anh",
+    image: "/images/portfolio-09-img-9791.jpg",
+    alt: "Editorial study of a structured jacket with folded details",
+    ratio: "portrait",
+  },
+  {
+    title: "Summer Stillness",
+    category: "Portrait",
+    location: "Trúc",
+    image: "/images/portfolio-10-img-0377.jpg",
+    alt: "Soft portrait study with a woman and a basket of oranges",
+    ratio: "tall",
+  },
+  {
+    title: "After Hours",
+    category: "Editorial",
+    location: "Adam",
+    image: "/images/portfolio-11-img-2244.jpg",
+    alt: "Blue-toned fashion portrait in an underground passage",
+    ratio: "landscape",
+  },
+  {
+    title: "Mirrorball",
+    category: "Editorial",
+    location: "HK",
+    image: "/images/portfolio-12-hk1-3.jpg",
+    alt: "Hand holding a mirrorball in warm amber light",
+    ratio: "portrait",
+  },
+  {
+    title: "Veiled Light",
+    category: "Portrait",
+    location: "Khả Như",
+    image: "/images/portfolio-13-img-2236.jpg",
+    alt: "Dreamlike portrait beside a lake beneath willow branches",
+    ratio: "portrait",
+  },
 ];
 
 const filters = ["All", "Wedding", "Portrait", "Editorial", "Event"] as const;
-
-const heroImages = [
-  {
-    src: "/images/hero-wedding-2512.jpg",
-    alt: "Wedding portraits at Independence Palace in Ho Chi Minh City",
-  },
-  {
-    src: "/images/hero-tan-thu.jpg",
-    alt: "A couple moving together through Ho Chi Minh City",
-  },
-] as const;
 
 function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return (
@@ -103,7 +132,7 @@ function Arrow({ diagonal = false }: { diagonal?: boolean }) {
 export function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
-  const [heroSlide, setHeroSlide] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -111,11 +140,10 @@ export function Portfolio() {
   }, [menuOpen]);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const interval = window.setInterval(() => {
-      setHeroSlide((current) => (current + 1) % heroImages.length);
-    }, 5500);
-    return () => window.clearInterval(interval);
+    const updateHeader = () => setScrolled(window.scrollY > 24);
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+    return () => window.removeEventListener("scroll", updateHeader);
   }, []);
 
   const visibleWorks = filter === "All" ? works : works.filter((work) => work.category === filter);
@@ -123,7 +151,7 @@ export function Portfolio() {
 
   return (
     <main>
-      <header className="site-header">
+      <header className={scrolled ? "site-header is-scrolled" : "site-header"}>
         <a className="brand-block" href="#top" aria-label="NEL home" onClick={closeMenu}>
           <span className="nav-label">Independent</span>
           <strong className="wordmark">NEL<span>®</span></strong>
@@ -160,17 +188,14 @@ export function Portfolio() {
 
       <section className="hero" id="top" aria-labelledby="hero-title">
         <div className="hero-image-wrap">
-          {heroImages.map((image, index) => (
-            <Image
-              className={heroSlide === index ? "hero-image is-active" : "hero-image"}
-              src={image.src}
-              alt={image.alt}
-              fill
-              priority={index === 0}
-              sizes="100vw"
-              key={image.src}
-            />
-          ))}
+          <Image
+            className="hero-image"
+            src="/images/hero-wedding-2512.jpg"
+            alt="Wedding portraits at Independence Palace in Ho Chi Minh City"
+            fill
+            priority
+            sizes="100vw"
+          />
           <div className="hero-shade" />
         </div>
         <div className="hero-copy">
@@ -180,18 +205,6 @@ export function Portfolio() {
             <p>Honest imagery for lovers, people, and independent brands.</p>
             <a className="round-link" href="#work" aria-label="Explore selected work"><Arrow /></a>
           </div>
-        </div>
-        <div className="hero-pagination" aria-label="Choose hero image">
-          {heroImages.map((image, index) => (
-            <button
-              className={heroSlide === index ? "is-active" : ""}
-              type="button"
-              onClick={() => setHeroSlide(index)}
-              aria-label={`Show image ${index + 1}: ${image.alt}`}
-              aria-pressed={heroSlide === index}
-              key={image.src}
-            >{String(index + 1).padStart(2, "0")}</button>
-          ))}
         </div>
       </section>
 
@@ -265,6 +278,14 @@ export function Portfolio() {
       </section>
 
       <section className="contact" id="contact" aria-labelledby="contact-title">
+        <Image
+          className="contact-background"
+          src="/images/contact-img-1582.jpg"
+          alt="Live performers on stage in Ho Chi Minh City"
+          fill
+          sizes="100vw"
+        />
+        <div className="contact-shade" />
         <div className="contact-topline">
           <p className="eyebrow">Bookings open · 2026</p>
           <p>Vietnam · Ho Chi Minh City · GMT+7</p>
@@ -272,7 +293,6 @@ export function Portfolio() {
         <h2 id="contact-title">Have a story in mind?</h2>
         <a className="contact-link" href="mailto:ngolamanhkhoa169@gmail.com">
           Let&apos;s make something <em>lasting.</em>
-          <span><Arrow diagonal /></span>
         </a>
         <div className="contact-details">
           <div><span>Email</span><a href="mailto:ngolamanhkhoa169@gmail.com">ngolamanhkhoa169@gmail.com</a></div>
