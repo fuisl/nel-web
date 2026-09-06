@@ -1,0 +1,21 @@
+# Dependencies
+/node_modules
+
+# Next.js
+/.next
+/out
+
+# Vercel
+/.vercel
+
+# Local environment files
+.env*
+!.env.example
+
+# OS and tooling
+.DS_Store
+*.log
+
+# Original high-resolution archive (optimized selections live in public/images)
+/assets
+.vercel
