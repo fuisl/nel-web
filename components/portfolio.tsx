@@ -57,8 +57,8 @@ const works: Work[] = [
     title: "Funky Night",
     category: "Event",
     location: "Live in Saigon",
-    image: "/images/event-funky.jpg",
-    alt: "Performers on a concert stage in black and white",
+    image: "/images/portfolio-06-img-2274.jpg",
+    alt: "Performers caught in motion on a concert stage in black and white",
     ratio: "landscape",
   },
   {
@@ -115,6 +115,14 @@ const works: Work[] = [
     location: "Khả Như",
     image: "/images/portfolio-13-img-2236.jpg",
     alt: "Dreamlike portrait beside a lake beneath willow branches",
+    ratio: "portrait",
+  },
+  {
+    title: "With Love",
+    category: "Editorial",
+    location: "THB Brand",
+    image: "/images/portfolio-14-img-2183.jpg",
+    alt: "Editorial detail of red roses against a typographic white shirt",
     ratio: "portrait",
   },
 ];
@@ -262,7 +270,7 @@ export function Portfolio() {
             <p>My work lives between documentary and editorial photography. I notice the in-between gestures, the atmosphere, and the details that are easy to miss while you are living them.</p>
             <p>Whether it is a wedding, a portrait, or a brand story, the goal is the same: create photographs that still feel true years from now.</p>
           </div>
-          <p className="signature">Nel</p>
+          <p className="signature">NEL</p>
         </div>
       </section>
 
