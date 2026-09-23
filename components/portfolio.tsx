@@ -162,7 +162,7 @@ export function Portfolio() {
       <header className={scrolled ? "site-header is-scrolled" : "site-header"}>
         <a className="brand-block" href="#top" aria-label="NEL home" onClick={closeMenu}>
           <span className="nav-label">Independent</span>
-          <strong className="wordmark">NEL<span>®</span></strong>
+          <strong className="wordmark">NEL</strong>
         </a>
         <div className="location-block">
           <span className="nav-label">Based in</span>
@@ -244,17 +244,21 @@ export function Portfolio() {
           ))}
         </div>
         <div className="work-grid" aria-live="polite">
-          {visibleWorks.map((work, index) => (
-            <article className={`work-card ${work.ratio}`} key={work.title}>
-              <div className="work-image-wrap">
-                <Image className="work-image" src={work.image} alt={work.alt} fill sizes="(max-width: 700px) 100vw, 50vw" />
-                <span className="work-number">{String(index + 1).padStart(2, "0")}</span>
-              </div>
-              <div className="work-meta">
-                <h3>{work.title}</h3>
-                <p>{work.category} · {work.location}</p>
-              </div>
-            </article>
+          {[0, 1].map((column) => (
+            <div className="work-column" key={column}>
+              {visibleWorks.filter((_, index) => index % 2 === column).map((work, index) => (
+                <article className={`work-card ${work.ratio}`} key={work.title}>
+                  <div className="work-image-wrap">
+                    <Image className="work-image" src={work.image} alt={work.alt} fill sizes="(max-width: 700px) 100vw, 50vw" />
+                    <span className="work-number">{String(index * 2 + column + 1).padStart(2, "0")}</span>
+                  </div>
+                  <div className="work-meta">
+                    <h3>{work.title}</h3>
+                    <p>{work.category} · {work.location}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
           ))}
         </div>
       </section>
@@ -308,7 +312,7 @@ export function Portfolio() {
           <div><span>Instagram</span><a href="https://www.instagram.com/nel_khoe" target="_blank" rel="noreferrer">@nel_khoe</a></div>
         </div>
         <footer>
-          <a className="wordmark footer-mark" href="#top">NEL<span>®</span></a>
+          <a className="wordmark footer-mark" href="#top">NEL</a>
           <div className="footer-links">
             <a href="mailto:ngolamanhkhoa169@gmail.com">Email</a>
             <a href="https://www.instagram.com/nel_khoe" target="_blank" rel="noreferrer">Instagram</a>
