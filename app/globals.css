@@ -61,7 +61,7 @@ button { color: inherit; font: inherit; }
   width: max-content;
 }
 .nav-links, .header-contact > div { display: flex; gap: 10px; }
-.nav-links a:not(:last-child)::after, .header-contact a:not(:last-child)::after { content: ","; }
+.header-contact a:not(:last-child)::after { content: ","; }
 .site-nav a, .header-contact a { position: relative; }
 .site-nav a::after {
   background: currentColor;
@@ -232,7 +232,9 @@ button { color: inherit; font: inherit; }
   grid-template-columns: 70px 1.2fr 1fr;
   padding: 28px 0;
 }
-.service-list span, .service-list p { color: var(--muted); font-size: 10px; }
+.services > .eyebrow, .service-list p { font-size: 14px; }
+.service-list span { color: var(--muted); font-size: 10px; }
+.service-list p { color: var(--muted); }
 .service-list h3 {
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: clamp(28px, 3vw, 46px);
@@ -326,7 +328,6 @@ footer > p { justify-self: end; margin: 0; }
   }
   .site-nav > .nav-label { display: none; }
   .nav-links { align-items: center; flex-direction: column; gap: 6px; }
-  .nav-links a:not(:last-child)::after { display: none; }
   .site-nav a { font-family: "Cormorant Garamond", Georgia, serif; font-size: 57px; font-weight: 400; letter-spacing: -.04em; line-height: .95; text-transform: none; }
   .site-nav.is-open { opacity: 1; pointer-events: auto; }
   .site-header:has(.site-nav.is-open) { background: transparent; mix-blend-mode: normal; text-shadow: none; }
