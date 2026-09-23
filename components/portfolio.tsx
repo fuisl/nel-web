@@ -140,6 +140,7 @@ function Arrow({ diagonal = false }: { diagonal?: boolean }) {
 export function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
+  const [activeWork, setActiveWork] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -156,6 +157,11 @@ export function Portfolio() {
 
   const visibleWorks = filter === "All" ? works : works.filter((work) => work.category === filter);
   const closeMenu = () => setMenuOpen(false);
+  const toggleWorkDetails = (title: string) => {
+    if (window.matchMedia("(max-width: 700px)").matches) {
+      setActiveWork((active) => active === title ? null : title);
+    }
+  };
 
   return (
     <main>
@@ -248,9 +254,23 @@ export function Portfolio() {
             <div className="work-column" key={column}>
               {visibleWorks.filter((_, index) => index % 2 === column).map((work, index) => (
                 <article className={`work-card ${work.ratio}`} key={work.title}>
-                  <div className="work-image-wrap">
-                    <Image className="work-image" src={work.image} alt={work.alt} fill sizes="(max-width: 700px) 100vw, 50vw" />
-                    <span className="work-number">{String(index * 2 + column + 1).padStart(2, "0")}</span>
+              <div
+                className={`work-image-wrap${activeWork === work.title ? " is-details-open" : ""}`}
+                role="button"
+                tabIndex={0}
+                aria-pressed={activeWork === work.title}
+                aria-label={`Show details for ${work.title}`}
+                onClick={() => toggleWorkDetails(work.title)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    toggleWorkDetails(work.title);
+                  }
+                }}
+              >
+                <Image className="work-image" src={work.image} alt={work.alt} fill sizes="(max-width: 700px) 100vw, 50vw" />
+                <p className="work-overlay">Lorem ipsum dolor sit amet, consectetur adipiscing elit. A moment held in light, movement, and memory.</p>
+                <span className="work-number">{String(index * 2 + column + 1).padStart(2, "0")}</span>
                   </div>
                   <div className="work-meta">
                     <h3>{work.title}</h3>
