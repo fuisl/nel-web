@@ -207,9 +207,9 @@ button { color: inherit; font: inherit; }
   grid-template-columns: minmax(340px, 43%) 1fr;
   padding: 112px 7.5vw;
 }
-.manifesto-image-wrap { aspect-ratio: 4 / 5; min-height: 640px; position: relative; }
-.manifesto-image { filter: saturate(.78); object-fit: cover; }
-.manifesto-copy { display: flex; flex-direction: column; justify-content: center; }
+.manifesto-image-wrap { aspect-ratio: 4 / 5; isolation: isolate; overflow: hidden; position: relative; }
+.manifesto-image { filter: saturate(.78); object-fit: cover; object-position: center; z-index: 0; }
+.manifesto-copy { display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 1; }
 .manifesto-copy h2 {
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: clamp(50px, 6vw, 92px);
@@ -263,8 +263,9 @@ button { color: inherit; font: inherit; }
   overflow: hidden;
   position: relative;
 }
-.contact-background { object-fit: cover; object-position: center; z-index: -2; }
-.contact-shade { background: rgba(0, 0, 0, .28); inset: 0; position: absolute; z-index: -1; }
+.contact-background { inset: 0; object-fit: cover; object-position: center; z-index: 0; }
+.contact-shade { background: rgba(0, 0, 0, .28); inset: 0; position: absolute; z-index: 1; }
+.contact > :not(.contact-background, .contact-shade) { position: relative; z-index: 2; }
 .contact-topline { align-items: center; border-bottom: 1px solid rgba(255,255,255,.45); display: flex; justify-content: space-between; padding-bottom: 18px; }
 .contact-topline p:last-child { font-size: 10px; letter-spacing: .12em; margin: 0; text-transform: uppercase; }
 .contact > h2 {
