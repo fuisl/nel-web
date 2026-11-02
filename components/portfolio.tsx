@@ -1,345 +1,222 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type WheelEvent } from "react";
 
-type Work = {
+type Frame = {
   title: string;
   category: "Wedding" | "Portrait" | "Editorial" | "Event";
   location: string;
   image: string;
+  position: string;
   alt: string;
-  ratio: "portrait" | "landscape" | "tall";
 };
 
-const works: Work[] = [
-  {
-    title: "A Quiet Promise",
-    category: "Wedding",
-    location: "Independence Palace",
-    image: "/images/wedding-promise.jpg",
-    alt: "Bride and groom sharing a quiet moment outdoors",
-    ratio: "portrait",
-  },
-  {
-    title: "Saigon, With You",
-    category: "Portrait",
-    location: "Ho Chi Minh City",
-    image: "/images/portfolio-02-img-1264.jpg",
-    alt: "A couple laughing and dancing on a Ho Chi Minh City street",
-    ratio: "tall",
-  },
-  {
-    title: "Bách & Nhi",
-    category: "Wedding",
-    location: "Ho Chi Minh City",
-    image: "/images/portfolio-03-img-0804.jpg",
-    alt: "A wedding party gathered at the entrance of a church",
-    ratio: "portrait",
-  },
-  {
-    title: "After the Rain",
-    category: "Portrait",
-    location: "Ba Son",
-    image: "/images/couple-bason.jpg",
-    alt: "Couple kissing under a cloudy sky",
-    ratio: "landscape",
-  },
-  {
-    title: "Modern Uniform",
-    category: "Editorial",
-    location: "Studio 04",
-    image: "/images/editorial-modern.jpg",
-    alt: "Fashion portrait in a dark tailored suit",
-    ratio: "portrait",
-  },
-  {
-    title: "Funky Night",
-    category: "Event",
-    location: "Live in Saigon",
-    image: "/images/portfolio-06-img-2274.jpg",
-    alt: "Performers caught in motion on a concert stage in black and white",
-    ratio: "landscape",
-  },
-  {
-    title: "Sinh & Xuyến",
-    category: "Wedding",
-    location: "Ho Chi Minh City",
-    image: "/images/portfolio-07-img-1059.jpg",
-    alt: "A bride looking through the window of a wedding car",
-    ratio: "portrait",
-  },
-  {
-    title: "Last Bell",
-    category: "Portrait",
-    location: "Trấn Biên",
-    image: "/images/yearbook-motion.jpg",
-    alt: "Students moving through a school courtyard",
-    ratio: "portrait",
-  },
-  {
-    title: "Constructed Form",
-    category: "Editorial",
-    location: "Nhật Anh",
-    image: "/images/portfolio-09-img-9791.jpg",
-    alt: "Editorial study of a structured jacket with folded details",
-    ratio: "portrait",
-  },
-  {
-    title: "Summer Stillness",
-    category: "Portrait",
-    location: "Trúc",
-    image: "/images/portfolio-10-img-0377.jpg",
-    alt: "Soft portrait study with a woman and a basket of oranges",
-    ratio: "tall",
-  },
-  {
-    title: "After Hours",
-    category: "Editorial",
-    location: "Adam",
-    image: "/images/portfolio-11-img-2244.jpg",
-    alt: "Blue-toned fashion portrait in an underground passage",
-    ratio: "landscape",
-  },
-  {
-    title: "Mirrorball",
-    category: "Editorial",
-    location: "HK",
-    image: "/images/portfolio-12-hk1-3.jpg",
-    alt: "Hand holding a mirrorball in warm amber light",
-    ratio: "portrait",
-  },
-  {
-    title: "Veiled Light",
-    category: "Portrait",
-    location: "Khả Như",
-    image: "/images/portfolio-13-img-2236.jpg",
-    alt: "Dreamlike portrait beside a lake beneath willow branches",
-    ratio: "portrait",
-  },
-  {
-    title: "With Love",
-    category: "Editorial",
-    location: "THB Brand",
-    image: "/images/portfolio-14-img-2183.jpg",
-    alt: "Editorial detail of red roses against a typographic white shirt",
-    ratio: "portrait",
-  },
+const frames: Frame[] = [
+  { title: "A Quiet Promise", category: "Wedding", location: "Independence Palace", image: "/images/hero-wedding-2512.jpg", position: "center 18%", alt: "Bride and groom embracing beneath trees" },
+  { title: "Saigon, With You", category: "Portrait", location: "Hồ Chí Minh City", image: "/images/portfolio-02-img-1264.jpg", position: "center 20%", alt: "Two friends dancing across a city street" },
+  { title: "Bách & Nhi", category: "Wedding", location: "Hồ Chí Minh City", image: "/images/portfolio-03-img-0804.jpg", position: "center 25%", alt: "A wedding party gathered at a church entrance" },
+  { title: "After the Rain", category: "Portrait", location: "Ba Son", image: "/images/couple-bason.jpg", position: "center 35%", alt: "Couple kissing in silhouette against a pale sky" },
+  { title: "Modern Uniform", category: "Editorial", location: "Studio 04", image: "/images/editorial-modern.jpg", position: "center 20%", alt: "Editorial portraits in a dark tailored suit" },
+  { title: "Funky Night", category: "Event", location: "Live in Saigon", image: "/images/portfolio-06-img-2274.jpg", position: "center 40%", alt: "Performers on a smoky stage under lights" },
+  { title: "Sinh & Xuyến", category: "Wedding", location: "Hồ Chí Minh City", image: "/images/portfolio-07-img-1059.jpg", position: "center 50%", alt: "A bride looking out from a car window" },
+  { title: "Last Bell", category: "Portrait", location: "Trấn Biên", image: "/images/yearbook-motion.jpg", position: "center 20%", alt: "Students running, legs blurred with motion" },
+  { title: "Constructed Form", category: "Editorial", location: "Nhật Anh", image: "/images/portfolio-09-img-9791.jpg", position: "center 40%", alt: "Details of a sculpted leather jacket" },
+  { title: "Summer Stillness", category: "Portrait", location: "Trúc", image: "/images/portfolio-10-img-0377.jpg", position: "center 45%", alt: "A soft still life of a woman with oranges" },
+  { title: "After Hours", category: "Editorial", location: "Adam", image: "/images/portfolio-11-img-2244.jpg", position: "center 50%", alt: "A man in black standing in an underpass" },
+  { title: "Mirrorball", category: "Editorial", location: "HK", image: "/images/portfolio-12-hk1-3.jpg", position: "center 45%", alt: "A hand holding a glowing mirrorball" },
+  { title: "Veiled Light", category: "Portrait", location: "Khả Như", image: "/images/portfolio-13-img-2236.jpg", position: "center 22%", alt: "Woman in a lace headscarf beneath a willow" },
+  { title: "With Love", category: "Editorial", location: "THB Brand", image: "/images/portfolio-14-img-2183.jpg", position: "center 30%", alt: "Roses held over a printed white shirt" },
 ];
 
-const filters = ["All", "Wedding", "Portrait", "Editorial", "Event"] as const;
+const REEL_MS = 6000;
+const TYPE_MS = 28;
 
-function Arrow({ diagonal = false }: { diagonal?: boolean }) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
-      <path d={diagonal ? "M5 19 19 5M8 5h11v11" : "M5 12h14m-5-5 5 5-5 5"} />
-    </svg>
+const caption = (i: number) => `F.${i + 1} — ${frames[i].title}, ${frames[i].location}`;
+
+const MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    (onChange) => {
+      const query = window.matchMedia(MOTION_QUERY);
+      query.addEventListener("change", onChange);
+      return () => query.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia(MOTION_QUERY).matches,
+    () => false,
   );
 }
 
 export function Portfolio() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [filter, setFilter] = useState<(typeof filters)[number]>("All");
-  const [activeWork, setActiveWork] = useState<string | null>(null);
-  const [scrolled, setScrolled] = useState(false);
+  const reduced = usePrefersReducedMotion();
+  const [current, setCurrent] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const [panel, setPanel] = useState<"about" | "contact" | null>(null);
+  const [typing, setTyping] = useState({ frame: 0, n: 0 });
+  const [cycle, setCycle] = useState(0);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const frameRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const running = playing && !reduced && panel === null;
 
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
-
-  useEffect(() => {
-    const updateHeader = () => setScrolled(window.scrollY > 24);
-    updateHeader();
-    window.addEventListener("scroll", updateHeader, { passive: true });
-    return () => window.removeEventListener("scroll", updateHeader);
+  const go = useCallback((i: number) => {
+    setCurrent(i);
+    setCycle((c) => c + 1);
   }, []);
 
-  const visibleWorks = filter === "All" ? works : works.filter((work) => work.category === filter);
-  const closeMenu = () => setMenuOpen(false);
-  const toggleWorkDetails = (title: string) => {
-    if (window.matchMedia("(max-width: 700px)").matches) {
-      setActiveWork((active) => active === title ? null : title);
-    }
+  // Auto-advance the reel; restarts whenever the frame changes or play state toggles.
+  useEffect(() => {
+    if (!running) return;
+    const id = window.setTimeout(() => go((current + 1) % frames.length), REEL_MS);
+    return () => window.clearTimeout(id);
+  }, [running, current, cycle, go]);
+
+  // Keep the active frame in view when the reel advances.
+  useEffect(() => {
+    frameRefs.current[current]?.scrollIntoView({ inline: "nearest", block: "nearest", behavior: reduced ? "auto" : "smooth" });
+  }, [current, reduced]);
+
+  // Type the caption out each time the frame changes.
+  useEffect(() => {
+    if (reduced) return;
+    const full = caption(current).length;
+    let n = 0;
+    const id = window.setInterval(() => {
+      n += 1;
+      setTyping({ frame: current, n });
+      if (n >= full) window.clearInterval(id);
+    }, TYPE_MS);
+    return () => window.clearInterval(id);
+  }, [current, reduced]);
+
+  const typed = reduced ? caption(current).length : typing.frame === current ? typing.n : 0;
+
+  // Close overlays with Escape and move focus into them when they open.
+  useEffect(() => {
+    if (!panel) return;
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPanel(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [panel]);
+
+  const onWheel = (e: WheelEvent<HTMLDivElement>) => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) e.currentTarget.scrollLeft += e.deltaY;
   };
 
   return (
-    <main>
-      <header className={scrolled ? "site-header is-scrolled" : "site-header"}>
-        <a className="brand-block" href="#top" aria-label="NEL home" onClick={closeMenu}>
-          <span className="nav-label">Independent</span>
-          <strong className="wordmark">NEL</strong>
-        </a>
-        <div className="location-block">
-          <span className="nav-label">Based in</span>
-          <strong>Ho Chi Minh City</strong>
-        </div>
-        <nav className={menuOpen ? "site-nav is-open" : "site-nav"} aria-label="Main navigation">
-          <span className="nav-label">Index</span>
-          <div className="nav-links">
-            <a href="#work" onClick={closeMenu}>Portfolio</a>
-            <a href="#about" onClick={closeMenu}>About</a>
-            <a href="#contact" onClick={closeMenu}>Contact</a>
-          </div>
+    <main className={panel ? "stage has-panel" : "stage"}>
+      <h1 className="visually-hidden">NEL — wedding, portrait, editorial and event photographer in Hồ Chí Minh City</h1>
+
+      <div className="backdrop" aria-hidden="true">
+        {frames.map((f, i) => (
+          <Image
+            key={f.image}
+            src={f.image}
+            alt=""
+            fill
+            sizes="100vw"
+            priority={i === 0}
+            className={i === current ? "is-on" : undefined}
+            style={{ objectPosition: f.position }}
+          />
+        ))}
+        <span className="shade" />
+      </div>
+
+      <header className="bar">
+        <Link className="mark" href="/">NEL_</Link>
+        <span className="hide-sm">Photographer<br />Hồ Chí Minh City, GMT+7</span>
+        <nav aria-label="Main" className="menu">
+          <button type="button" onClick={() => setPanel(null)}>Work,</button>
+          <button type="button" onClick={() => setPanel("about")}>About,</button>
+          <button type="button" onClick={() => setPanel("contact")}>Contact</button>
         </nav>
-        <div className="header-contact">
-          <span className="nav-label">Contact</span>
-          <div>
-            <a href="https://www.instagram.com/nel_khoe" target="_blank" rel="noreferrer">Instagram</a>
-            <a href="mailto:ngolamanhkhoa169@gmail.com">Email</a>
-          </div>
-        </div>
-        <button
-          className="menu-button"
-          type="button"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          {menuOpen ? "Close" : "Menu"}
-        </button>
+        <span className="right hide-sm">Bookings open<br />(C) 2026</span>
       </header>
 
-      <section className="hero" id="top" aria-labelledby="hero-title">
-        <div className="hero-image-wrap">
-          <Image
-            className="hero-image"
-            src="/images/hero-wedding-2512.jpg"
-            alt="Wedding portraits at Independence Palace in Ho Chi Minh City"
-            fill
-            priority
-            sizes="100vw"
-          />
-          <div className="hero-shade" />
-        </div>
-        <div className="hero-copy">
-          <p className="eyebrow light">Photography · Visual stories</p>
-          <h1 id="hero-title">Hold on to<span>what it felt like.</span></h1>
-          <div className="hero-bottom">
-            <p>Honest imagery for lovers, people, and independent brands.</p>
-            <a className="round-link" href="#work" aria-label="Explore selected work"><Arrow /></a>
-          </div>
-        </div>
-      </section>
+      <p className="caption" aria-live="polite">
+        <span className="visually-hidden">{caption(current)}</span>
+        <span aria-hidden="true">{caption(current).slice(0, typed)}</span>
+        <span className="caret" aria-hidden="true">_</span>
+      </p>
 
-      <section className="intro" aria-label="Introduction">
-        <p className="eyebrow">Vietnam · Ho Chi Minh City · GMT+7</p>
-        <p className="intro-statement">
-          I photograph the energy between people—the fleeting, imperfect moments that make a story feel <em>alive.</em>
-        </p>
-        <div className="intro-aside">
-          <span>(Approach)</span>
-          <p>Quiet observation, gentle direction, and a little room for the unexpected.</p>
+      <section className="index" aria-label="Stories">
+        <div className="index-meta">
+          <span>{String(current + 1).padStart(2, "0")} / {frames.length}</span>
+          <button type="button" onClick={() => setPlaying((p) => !p)} aria-label={running ? "Pause the reel" : "Play the reel"}>
+            {running ? "Pause" : "Play"}
+          </button>
         </div>
-      </section>
-
-      <section className="work-section" id="work" aria-labelledby="work-title">
-        <div className="section-heading">
-          <p className="eyebrow">Selected work · 2024—26</p>
-          <h2 id="work-title">Stories, closely seen.</h2>
-        </div>
-        <div className="filters" role="group" aria-label="Filter portfolio">
-          {filters.map((item) => (
+        <div className="ticks" aria-hidden="true" />
+        <div className="track" onWheel={onWheel}>
+          {frames.map((f, i) => (
             <button
-              className={filter === item ? "is-active" : ""}
-              key={item}
+              key={f.image}
+              ref={(el) => { frameRefs.current[i] = el; }}
               type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-            >{item}</button>
+              className={i === current ? "frame is-on" : "frame"}
+              aria-pressed={i === current}
+              onClick={() => go(i)}
+              onMouseEnter={() => i !== current && go(i)}
+              onFocus={() => i !== current && go(i)}
+            >
+              <span className="row rule">
+                <span>F.</span>
+                <span>{i + 1}</span>
+                {i === current && running && <span key={cycle} className="reel" aria-hidden="true" />}
+              </span>
+              <span className="title">{f.title}</span>
+              <span className="row gap"><span>C.</span><span>{f.category}</span></span>
+              <span className="row"><span>L.</span><span>{f.location}</span></span>
+            </button>
           ))}
         </div>
-        <div className="work-grid" aria-live="polite">
-          {[0, 1].map((column) => (
-            <div className="work-column" key={column}>
-              {visibleWorks.filter((_, index) => index % 2 === column).map((work, index) => (
-                <article className={`work-card ${work.ratio}`} key={work.title}>
-              <div
-                className={`work-image-wrap${activeWork === work.title ? " is-details-open" : ""}`}
-                role="button"
-                tabIndex={0}
-                aria-pressed={activeWork === work.title}
-                aria-label={`Show details for ${work.title}`}
-                onClick={() => toggleWorkDetails(work.title)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    toggleWorkDetails(work.title);
-                  }
-                }}
-              >
-                <Image className="work-image" src={work.image} alt={work.alt} fill sizes="(max-width: 700px) 100vw, 50vw" />
-                <p className="work-overlay">Lorem ipsum dolor sit amet, consectetur adipiscing elit. A moment held in light, movement, and memory.</p>
-                <span className="work-number">{String(index * 2 + column + 1).padStart(2, "0")}</span>
-                  </div>
-                  <div className="work-meta">
-                    <h3>{work.title}</h3>
-                    <p>{work.category} · {work.location}</p>
-                  </div>
-                </article>
-              ))}
+      </section>
+
+      {panel && (
+        <div className="panel" role="dialog" aria-modal="true" aria-label={panel === "about" ? "About" : "Contact"}>
+          <div className="bar static">
+            <span className="mark">NEL_</span>
+            <span className="hide-sm">{panel === "about" ? "About" : "Contact"}</span>
+            <span className="hide-sm" />
+            <button ref={closeRef} type="button" className="right" onClick={() => setPanel(null)}>Close ×</button>
+          </div>
+
+          {panel === "about" ? (
+            <div className="panel-body">
+              <span className="hide-sm" />
+              <p className="note">
+                I photograph the energy between people — the fleeting, imperfect moments that make a story feel alive.
+                Between documentary and editorial. Quiet observation, gentle direction, a little room for the unexpected.
+              </p>
+              <div className="list">
+                <span className="row rule"><span>B.</span><span>Hồ Chí Minh City</span></span>
+                <span className="row rule"><span>W.</span><span>Wedding, Portrait, Editorial, Event</span></span>
+                <span className="row rule"><span>V.</span><span>Tiếng Việt / English</span></span>
+              </div>
             </div>
-          ))}
+          ) : (
+            <div className="panel-body contact">
+              <a href="mailto:ngolamanhkhoa169@gmail.com">
+                <span className="row rule"><span>E.</span><span>Email</span></span>
+                <span className="lower">ngolamanhkhoa169@gmail.com</span>
+              </a>
+              <a href="tel:+84908634027">
+                <span className="row rule"><span>T.</span><span>Phone / Zalo</span></span>
+                <span>(+84) 908 634 027</span>
+              </a>
+              <a href="https://www.instagram.com/nel_khoe" target="_blank" rel="noreferrer">
+                <span className="row rule"><span>I.</span><span>Instagram</span></span>
+                <span>@nel_khoe</span>
+              </a>
+            </div>
+          )}
         </div>
-      </section>
-
-      <section className="manifesto" id="about" aria-labelledby="about-title">
-        <div className="manifesto-image-wrap">
-          <Image src="/images/about-camera.jpg" alt="Hands holding a vintage film camera" fill sizes="(max-width: 760px) 100vw, 42vw" className="manifesto-image" />
-        </div>
-        <div className="manifesto-copy">
-          <p className="eyebrow light">A note from NEL</p>
-          <h2 id="about-title">Images that feel like memory, not performance.</h2>
-          <div className="manifesto-body">
-            <p>My work lives between documentary and editorial photography. I notice the in-between gestures, the atmosphere, and the details that are easy to miss while you are living them.</p>
-            <p>Whether it is a wedding, a portrait, or a brand story, the goal is the same: create photographs that still feel true years from now.</p>
-          </div>
-          <p className="signature">NEL</p>
-        </div>
-      </section>
-
-      <section className="services" aria-labelledby="services-title">
-        <p className="eyebrow">Ways to work together</p>
-        <h2 id="services-title">Made personal, from the first conversation.</h2>
-        <div className="service-list">
-          <div><span>01</span><h3>Weddings & celebrations</h3><p>Full stories, intimate ceremonies, and everything between.</p></div>
-          <div><span>02</span><h3>Portraits & couples</h3><p>Relaxed sessions shaped around who you actually are.</p></div>
-          <div><span>03</span><h3>Editorial & brands</h3><p>Distinctive imagery for campaigns, products, and culture.</p></div>
-          <div><span>04</span><h3>Events</h3><p>Atmosphere, people, and the energy of the room.</p></div>
-        </div>
-      </section>
-
-      <section className="contact" id="contact" aria-labelledby="contact-title">
-        <Image
-          className="contact-background"
-          src="/images/contact-img-1582.jpg"
-          alt="Live performers on stage in Ho Chi Minh City"
-          fill
-          sizes="100vw"
-        />
-        <div className="contact-shade" />
-        <div className="contact-topline">
-          <p className="eyebrow">Bookings open · 2026</p>
-          <p>Vietnam · Ho Chi Minh City · GMT+7</p>
-        </div>
-        <h2 id="contact-title">Have a story in mind?</h2>
-        <a className="contact-link" href="mailto:ngolamanhkhoa169@gmail.com">
-          Let&apos;s make something <em>lasting.</em>
-        </a>
-        <div className="contact-details">
-          <div><span>Email</span><a href="mailto:ngolamanhkhoa169@gmail.com">ngolamanhkhoa169@gmail.com</a></div>
-          <div><span>Phone</span><a href="tel:+84908634027">(+84) 908 634 027</a></div>
-          <div><span>Instagram</span><a href="https://www.instagram.com/nel_khoe" target="_blank" rel="noreferrer">@nel_khoe</a></div>
-        </div>
-        <footer>
-          <a className="wordmark footer-mark" href="#top">NEL</a>
-          <div className="footer-links">
-            <a href="mailto:ngolamanhkhoa169@gmail.com">Email</a>
-            <a href="https://www.instagram.com/nel_khoe" target="_blank" rel="noreferrer">Instagram</a>
-          </div>
-          <p>© 2026 NEL Photography</p>
-        </footer>
-      </section>
+      )}
     </main>
   );
 }
