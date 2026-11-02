@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FilmRoll } from "./film-roll";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
 
 type Frame = {
   title: string;
@@ -51,6 +51,17 @@ function ReelIcon({ playing }: { playing: boolean }) {
   );
 }
 
+const PETALS = ["#d9482b", "#e8902a", "#e9c53f", "#6fa84a", "#2f9a8f", "#3b78c2", "#7b5bb5", "#c64a8a"];
+
+function Flower() {
+  return (
+    <svg className="flower" viewBox="-12 -12 24 24" width="16" height="16" aria-hidden="true">
+      {PETALS.map((fill, i) => <ellipse key={fill} cy="-6" rx="3" ry="5.6" fill={fill} transform={`rotate(${i * 45})`} />)}
+      <circle r="2.6" fill="#f2f0ea" />
+    </svg>
+  );
+}
+
 function usePrefersReducedMotion() {
   return useSyncExternalStore(
     (onChange) => {
@@ -69,6 +80,8 @@ export function Portfolio() {
   const [playing, setPlaying] = useState(true);
   const [browsing, setBrowsing] = useState(false);
   const [locked, setLocked] = useState(false);
+  const [color, setColor] = useState(false);
+  const [bloom, setBloom] = useState<{ key: number; x: number; y: number } | null>(null);
   const [panel, setPanel] = useState<"about" | "contact" | null>(null);
   const [typing, setTyping] = useState({ frame: 0, n: 0 });
   const [cycle, setCycle] = useState(0);
@@ -132,6 +145,14 @@ export function Portfolio() {
     go(i);
     setPlaying(true);
     setLocked(true);
+  };
+
+  const toggleColor = (e: MouseEvent<HTMLButtonElement>) => {
+    if (!color) {
+      const knob = e.currentTarget.querySelector(".tone-track")!.getBoundingClientRect();
+      setBloom((b) => ({ key: (b?.key ?? 0) + 1, x: knob.right - 8, y: knob.top + knob.height / 2 }));
+    }
+    setColor((c) => !c);
   };
 
   const toggleReel = () => {
@@ -221,7 +242,7 @@ export function Portfolio() {
   }, [panel]);
 
   return (
-    <main ref={stageRef} className={panel ? "stage has-panel" : "stage"}>
+    <main ref={stageRef} className={["stage", panel && "has-panel", color && panel !== "about" && "is-color"].filter(Boolean).join(" ")}>
       <h1 className="visually-hidden">NEL — wedding, portrait, editorial and event photographer in Hồ Chí Minh City</h1>
 
       <div className="backdrop" aria-hidden="true">
@@ -249,8 +270,14 @@ export function Portfolio() {
             style={{ objectPosition: f.position }}
           />
         ))}
+        <span className="print print-lift" />
+        <span className="print print-leak" />
         <span className="shade" />
+        <span className="print print-grain" />
+        <span className="print print-dust" />
+        <span className="print print-flicker" />
       </div>
+      {bloom && <span key={bloom.key} className="color-bloom" style={{ left: bloom.x, top: bloom.y }} aria-hidden="true" />}
 
       <header className="bar">
         <Link className="mark" href="/" aria-label={MARK}>
@@ -264,7 +291,13 @@ export function Portfolio() {
           <button type="button" onClick={() => setPanel("about")}>About,</button>
           <button type="button" onClick={() => setPanel("contact")}>Contact</button>
         </nav>
-        <span className="right hide-sm">Bookings open<br />(C) 2026</span>
+        <div className="right bar-end">
+          <button type="button" role="switch" aria-checked={color} aria-label="Show colour" className="tone" onClick={toggleColor}>
+            <span className="tone-label">{color ? "Color" : "B&W"}</span>
+            <span className="tone-track"><Flower /></span>
+          </button>
+          <span className="hide-sm">Bookings open<br />(C) 2026</span>
+        </div>
       </header>
 
       <p className="caption" aria-live="polite">
