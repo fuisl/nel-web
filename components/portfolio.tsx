@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { FilmRoll } from "./film-roll";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 type Frame = {
@@ -310,7 +311,8 @@ export function Portfolio() {
       </section>
 
       {panel && (
-        <div className="panel" role="dialog" aria-modal="true" aria-label={panel === "about" ? "About" : "Contact"}>
+        <div className={panel === "about" ? "panel panel-about" : "panel"} role="dialog" aria-modal="true" aria-label={panel === "about" ? "About" : "Contact"}>
+          {panel === "about" && <FilmRoll reduced={reduced} />}
           <div className="bar static">
             <span className="mark">{MARK}<span className="caret" aria-hidden="true">_</span></span>
             <span className="hide-sm">{panel === "about" ? "About" : "Contact"}</span>
