@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource/inter-tight/400.css";
 import "@fontsource/inter-tight/500.css";
 import "@fontsource/inter-tight/600.css";
+import "@fontsource/reenie-beanie/400.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
